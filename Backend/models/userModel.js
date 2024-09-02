@@ -5,11 +5,6 @@ const userSchema = new mongoose.Schema({
         type : String,
         require: [true,'please add a name']
     },
-    email:{
-        type: String,
-        require:[true,'please add a email'],
-        unique: true
-    },
     contact:{
         type: Number,
         require: true

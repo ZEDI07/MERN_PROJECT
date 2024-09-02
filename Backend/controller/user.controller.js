@@ -12,13 +12,14 @@ exports.getusers=async(req,res)=>{
 
 exports.registerUser=async(req,res)=>{
     try {
-       // console.log(req.body)
-        const {name,email,contact,password} = req.body;
-        if(!name || !email || !contact || !password){
+        console.log('...................')
+        console.log(req.body)
+        const {name,contact,password,password2} = req.body;
+        if(!name || !contact || !password){
             return res.status(400).json({message:'please fill required feilds.'});
         }
 
-        const userExisted = await User.findOne({email:email});
+        const userExisted = await User.findOne({contact:contact});
         if(userExisted){
            return res.status(400).json({message:'User Already Existed'});
         }
@@ -28,17 +29,16 @@ exports.registerUser=async(req,res)=>{
         const hashedPass = await bcrypt.hash(password,salt);        // hash the password 
         
         // creating user 
-        const registered = await User.create({name,email,contact,password:hashedPass});
+        const registered = await User.create({name,contact,password:hashedPass});
        
         // sending response 
         if(registered){
             res.status(201).json({
                 _id: registered._id,
                 name: registered.name,
-                email: registered.email,
                 contact: registered.contact,
                 password:registered.password,
-                token: generateToken({id:registered._id,email,password})   // generate token for registered user and send in response
+                token: generateToken({id:registered._id,password})   // generate token for registered user and send in response
             });
     
         }
@@ -51,21 +51,21 @@ exports.registerUser=async(req,res)=>{
 
 exports.login=async(req,res)=>{
     try {
-        const {email,password} = req.body;
-        if(!email || !password){
+        const {contact,password} = req.body;
+        if(!contact || !password){
             return res.status(400).json({message:'please fill required feilds.'});
         }
 
-        const user = await User.findOne({email:email});
+        const user = await User.findOne({contact:contact});
         
         if(user && (await bcrypt.compare(password,user?.password))){
 
-          const token = generateToken({id:user._id,email,password});
+          const token = generateToken({id:user._id,contact,password});
 
             res.status(200).json({
                 id : user._id,
                 name: user.name,
-                email: user.email,
+                contact: user.contact,
                 token
             })
         } else {
